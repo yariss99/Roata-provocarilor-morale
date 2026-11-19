@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roata provocărilor – Laboratorul valorilor morale</title>
+<style>
+:root{
+  --ink:#243247;--muted:#627086;--paper:#fffdf8;--line:#e7e1d5;
+  --navy:#233b59;--gold:#f2b84b;--teal:#3b9b91;--coral:#e77d68;
+  --violet:#8271bd;--blue:#5d91c7;--green:#83a95f;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;color:var(--ink);
+ font-family:"Trebuchet MS",Arial,sans-serif;
+ background:radial-gradient(circle at 15% 15%,#fff9e9 0,transparent 30%),
+            radial-gradient(circle at 85% 80%,#e8f4f1 0,transparent 32%),#f2f5f8;
+}
+header{text-align:center;padding:28px 16px 12px}
+.brand{font-size:.78rem;letter-spacing:.18em;font-weight:800;color:#64758b}
+h1{margin:8px 0 5px;font-size:clamp(1.7rem,4vw,2.8rem);color:var(--navy);letter-spacing:.02em}
+.subtitle{margin:0 auto;max-width:720px;color:var(--muted);line-height:1.5}
+.layout{width:min(1180px,96%);margin:20px auto 36px;display:grid;grid-template-columns:minmax(300px,1.05fr) minmax(320px,.95fr);gap:26px;align-items:center}
+.wheel-panel,.task-panel{background:rgba(255,255,255,.88);border:1px solid #e8eaf0;border-radius:26px;box-shadow:0 16px 42px rgba(35,59,89,.10)}
+.wheel-panel{padding:24px 18px 22px;text-align:center}
+.wheel-wrap{width:min( min(78vw,510px),100%);aspect-ratio:1;margin:4px auto 18px;position:relative}
+canvas{width:100%;height:100%;display:block;filter:drop-shadow(0 10px 13px rgba(30,48,70,.18))}
+.pointer{position:absolute;z-index:2;top:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-top:0;border-bottom:42px solid #243b58;filter:drop-shadow(0 3px 2px #fff); }
+.hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:19%;aspect-ratio:1;border-radius:50%;background:#fff;border:7px solid #243b58;display:grid;place-items:center;color:#243b58;font-weight:900;font-size:clamp(.6rem,1.5vw,.9rem);box-shadow:0 2px 9px #0002}
+button{border:0;border-radius:999px;padding:14px 24px;font-size:1rem;font-weight:800;cursor:pointer;transition:transform .15s,box-shadow .15s}
+button:hover{transform:translateY(-2px);box-shadow:0 7px 16px #243b5926}
+button:focus-visible{outline:4px solid #f2b84b;outline-offset:3px}
+.spin{background:var(--navy);color:white;min-width:190px;box-shadow:0 7px 18px #233b5930}
+.spin:disabled{opacity:.55;cursor:wait;transform:none}
+.small-btn{background:#edf2f7;color:var(--navy);padding:10px 16px;font-size:.88rem}
+.controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.hint{font-size:.88rem;color:var(--muted);margin:14px 0 0}
+.task-panel{padding:26px;min-height:450px;display:flex;flex-direction:column}
+.eyebrow{font-size:.75rem;font-weight:900;letter-spacing:.15em;color:var(--teal)}
+.task-panel h2{font-size:1.65rem;color:var(--navy);margin:9px 0 12px;line-height:1.2}
+.intro{line-height:1.6;color:#46556a;margin:0 0 18px}
+.placeholder{margin:auto;text-align:center;max-width:340px;color:var(--muted);line-height:1.6}
+.placeholder .icon{font-size:3.3rem;display:block;margin-bottom:10px}
+.levels{display:grid;gap:10px;margin-top:4px}
+.level{border:1px solid var(--line);border-left:6px solid var(--teal);border-radius:13px;padding:12px 14px;background:#fff}
+.level:nth-child(2){border-left-color:var(--gold)}
+.level:nth-child(3){border-left-color:var(--violet)}
+.level b{display:block;font-size:.82rem;letter-spacing:.04em;color:var(--navy);margin-bottom:4px}
+.level p{margin:0;color:#4c5b6f;line-height:1.45;font-size:.94rem}
+.task-actions{margin-top:auto;padding-top:20px;display:flex;gap:9px;flex-wrap:wrap}
+.task-actions button{font-size:.88rem;padding:11px 16px}
+.complete{background:#e6f3ed;color:#28634f}
+.note{font-size:.82rem;color:#7b8797;margin-top:14px;line-height:1.5}
+footer{text-align:center;color:#738094;font-size:.78rem;padding:0 14px 24px;letter-spacing:.02em}
+@media(max-width:800px){.layout{grid-template-columns:1fr;max-width:620px}.task-panel{min-height:380px}.wheel-wrap{width:min(78vw,440px)}}
+@media print{body{background:white}.wheel-panel{display:none}.layout{display:block}.task-panel{box-shadow:none;border:1px solid #bbb}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand">CRED ÎN EDUCAȚIE • EDUCAȚIE CIVICĂ • CLASA A IV-A</div>
+ <h1>Roata provocărilor</h1>
+ <p class="subtitle">Laboratorul valorilor morale · Învârtim roata, descoperim o situație și ne argumentăm alegerile.</p>
+</header>
+
+<main class="layout">
+ <section class="wheel-panel" aria-label="Roata interactivă">
+  <div class="wheel-wrap">
+   <div class="pointer" aria-hidden="true"></div>
+   <canvas id="wheel" width="900" height="900" aria-label="Roată cu șase provocări"></canvas>
+   <div class="hub">CRED<br>ÎN<br>EDUCAȚIE</div>
+  </div>
+  <div class="controls">
+   <button class="spin" id="spinBtn">ÎNVÂRTE ROATA</button>
+   <button class="small-btn" id="soundBtn" aria-pressed="true">♫ Sunet activ</button>
+  </div>
+  <p class="hint">Roata se oprește la una dintre cele șase provocări. Citește sarcina și parcurge cele trei niveluri.</p>
+ </section>
+
+ <section class="task-panel" id="taskPanel" aria-live="polite">
+  <div class="placeholder" id="placeholder">
+   <span class="icon">✦</span>
+   <strong>Care va fi provocarea ta?</strong>
+   <p>Apasă butonul „ÎNVÂRTE ROATA”. La oprire, aici va apărea provocarea aleasă.</p>
+  </div>
+  <div id="taskContent" hidden>
+   <div class="eyebrow" id="taskNumber">PROVOCAREA 1</div>
+   <h2 id="taskTitle"></h2>
+   <p class="intro" id="taskIntro"></p>
+   <div class="levels" id="levels"></div>
+   <div class="task-actions">
+    <button class="complete" id="nextBtn">Am înțeles provocarea ✓</button>
+    <button class="small-btn" id="spinAgainBtn">Alege altă provocare ↻</button>
+   </div>
+   <p class="note">Nu urmărim răspunsuri lungi, ci idei clare, potrivite situației și susținute prin argumente.</p>
+  </div>
+ </section>
+</main>
+<footer>Învăț cu sens. Gândesc cu încredere. Cresc prin descoperire.</footer>
+
+<script>
+const tasks = [
+ {title:"În căutarea valorilor morale",intro:"Citește întâmplările și descoperă valoarea morală din spatele comportamentului: Mara împarte materialele cu un coleg; Andrei recunoaște că a deteriorat o carte; Radu ia un obiect care nu îi aparține; Vlad păstrează toate piesele jocului pentru sine.",levels:[
+  ["NIVELUL 1 – RECUNOSC","Asociază fiecare situație cu valoarea sau opusul valorii potrivite: altruism, egoism, cinste, necinste."],
+  ["NIVELUL 2 – APLIC ȘI EXPLIC","Alege două situații și explică prin ce detaliu ai recunoscut valoarea morală."],
+  ["NIVELUL 3 – ANALIZEZ","Alege una dintre situații. Arată cum s-ar putea schimba urmarea întâmplării dacă personajul ar face o alegere opusă."]
+ ]},
+ {title:"Aceeași întâmplare, alegeri diferite",intro:"Un elev nou stă singur în curtea școlii. Ilinca îl invită să se alăture jocului. Matei spune: „Nu este treaba noastră; să-și găsească singur prieteni”.",levels:[
+  ["NIVELUL 1 – RECUNOSC","Notează care dintre cele două comportamente este altruist și care este egoist."],
+  ["NIVELUL 2 – APLIC ȘI EXPLIC","Descrie câte o posibilă consecință a fiecărui comportament asupra elevului nou."],
+  ["NIVELUL 3 – ANALIZEZ","Imaginează-ți că elevul nou refuză invitația Ilincăi. Ce ar putea face ea în continuare pentru a-l respecta și, totodată, a-i arăta că este binevenit? Justifică alegerea."]
+ ]},
+ {title:"Penarul găsit",intro:"La sfârșitul pauzei, observi un penar sub bancă. Îl recunoști: aparține unui coleg cu care nu te înțelegi prea bine. Nimeni nu pare să fi văzut că l-ai găsit.",levels:[
+  ["NIVELUL 1 – RECUNOSC","Alege și notează comportamentul cinstit: îl păstrezi, îl ascunzi, îl înapoiezi proprietarului sau îl predai învățătoarei."],
+  ["NIVELUL 2 – APLIC ȘI EXPLIC","Explică de ce alegerea ta este cinstită și prezintă două urmări posibile ale acesteia."],
+  ["NIVELUL 3 – ANALIZEZ","Dacă un prieten te îndeamnă să păstrezi penarul, cum îi răspunzi astfel încât să rămâi cinstit, dar să nu îl jignești? Formulează răspunsul și explică de ce este potrivit."]
+ ]},
+ {title:"A ajuta înseamnă și a gândi",intro:"În timpul unui proiect, Teo își termină partea. Observă că un coleg întâmpină dificultăți. Dacă îl ajută, s-ar putea să nu-și mai termine la timp propria contribuție.",levels:[
+  ["NIVELUL 1 – RECUNOSC","Numește o valoare morală care îl poate îndemna pe Teo să-și ajute colegul."],
+  ["NIVELUL 2 – APLIC ȘI EXPLIC","Propune o modalitate concretă prin care Teo își poate ajuta colegul fără să-și neglijeze propria contribuție la proiect. Explică de ce este potrivită."],
+  ["NIVELUL 3 – ANALIZEZ","Prezintă două posibilități de acțiune și câte o consecință pentru fiecare. Apoi susține soluția pe care o consideri cea mai echilibrată."]
+ ]},
+ {title:"Un gest bun, dar cu ce preț?",intro:"Elevii clasei strâng rechizite pentru un coleg care are nevoie de ajutor. Un copil propune să fotografieze momentul în care colegul primește darurile și să publice imaginea pe internet, pentru ca toată lumea să vadă cât de generoasă este clasa.",levels:[
+  ["NIVELUL 1 – RECUNOSC","Ce intenție bună se află în spatele acțiunii? Numește valoarea morală."],
+  ["NIVELUL 2 – APLIC ȘI EXPLIC","Ce problemă ar putea apărea pentru colegul care primește ajutorul? Propune o modalitate de a păstra gestul de ajutor fără a-l pune într-o situație neplăcută."],
+  ["NIVELUL 3 – ANALIZEZ","Explică de ce o faptă cu intenție bună poate avea totuși urmări nepotrivite. Formulează o regulă pe care clasa ar trebui să o respecte în astfel de situații și argumentează."]
+ ]},
+ {title:"Convinge-mă!",intro:"Alege una dintre afirmații și susține-ți punctul de vedere: A. „Este important să faci binele chiar și atunci când nu te vede nimeni.” B. „A spune adevărul poate fi dificil, dar ajută la construirea încrederii.”",levels:[
+  ["NIVELUL 1 – RECUNOSC","Alege afirmația pe care o susții: A sau B."],
+  ["NIVELUL 2 – APLIC ȘI EXPLIC","Scrie un argument și oferă un exemplu concret care susține afirmația aleasă."],
+  ["NIVELUL 3 – ANALIZEZ","Dacă poți, ia în considerare și o situație în care alegerea nu este ușoară. La final, completează: „O idee la care nu m-am gândit înainte este…”"]
+ ]}
+];
+const colors=["#3b9b91","#e77d68","#5d91c7","#f2b84b","#8271bd","#83a95f"];
+const short=["VALORI\nMORALE","ALEGERI\nDIFERITE","PENARUL\nGĂSIT","A AJUTA\nCU GRIJĂ","GEST BUN,\nCE PREȚ?","CONVINGE-\nMĂ!"];
+const canvas=document.getElementById("wheel"),ctx=canvas.getContext("2d");
+const N=tasks.length,arc=2*Math.PI/N;
+let rotation=0,spinning=false,soundOn=true,selected=-1;
+function drawWheel(){
+ const cx=450,cy=450,r=420;
+ ctx.clearRect(0,0,900,900);
+ ctx.save();ctx.translate(cx,cy);ctx.rotate(rotation);
+ for(let i=0;i<N;i++){
+  const start=-Math.PI/2+i*arc,end=start+arc;
+  ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,start,end);ctx.closePath();
+  ctx.fillStyle=colors[i];ctx.fill();ctx.lineWidth=9;ctx.strokeStyle="#fff9ef";ctx.stroke();
+  ctx.save();ctx.rotate(start+arc/2);ctx.translate(r*.65,0);ctx.rotate(Math.PI/2);
+  ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillStyle="#fff";
+  ctx.shadowColor="#233b5938";ctx.shadowBlur=4;ctx.font="bold 31px Trebuchet MS,Arial";
+  short[i].split("\n").forEach((line,j)=>ctx.fillText(line,0,(j-.5)*38));
+  ctx.restore();
+ }
+ ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.lineWidth=13;ctx.strokeStyle="#243b58";ctx.stroke();
+ ctx.restore();
+}
+drawWheel();
+function tone(freq,duration=0.07){
+ if(!soundOn)return;
+ try{const AC=window.AudioContext||window.webkitAudioContext;const ac=tone.ac||(tone.ac=new AC());
+ const o=ac.createOscillator(),g=ac.createGain();o.type="sine";o.frequency.value=freq;
+ g.gain.setValueAtTime(.0001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.10,ac.currentTime+.01);
+ g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+duration);
+ o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+duration+.02);}catch(e){}
+}
+function showTask(i){
+ selected=i;const t=tasks[i];
+ document.getElementById("placeholder").hidden=true;
+ document.getElementById("taskContent").hidden=false;
+ document.getElementById("taskNumber").textContent="PROVOCAREA "+(i+1)+" DIN 6";
+ document.getElementById("taskTitle").textContent=t.title;
+ document.getElementById("taskIntro").textContent=t.intro;
+ document.getElementById("levels").innerHTML="";
+ t.levels.forEach(([label,text])=>{
+  const div=document.createElement("div");div.className="level";
+  const b=document.createElement("b");b.textContent=label;
+  const p=document.createElement("p");p.textContent=text;
+  div.append(b,p);document.getElementById("levels").append(div);
+ });
+}
+function spin(){
+ if(spinning)return;spinning=true;
+ document.getElementById("spinBtn").disabled=true;
+ const start=rotation;
+ const targetIndex=Math.floor(Math.random()*N);
+ // Pointer is at the top. The center of the chosen sector must finish beneath it.
+ const desired=((2*Math.PI-(targetIndex+.5)*arc)%(2*Math.PI));
+ const current=((rotation%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+ const delta=(desired-current+2*Math.PI)%(2*Math.PI);
+ const extra=(5+Math.floor(Math.random()*3))*2*Math.PI;
+ const total=delta+extra, duration=4700, t0=performance.now();
+ let lastTick=-1;
+ function frame(now){
+  const p=Math.min(1,(now-t0)/duration),ease=1-Math.pow(1-p,4);
+  rotation=start+total*ease;drawWheel();
+  const tick=Math.floor(ease*total/(arc*.45));
+  if(tick!==lastTick){tone(420+(tick%3)*100,.035);lastTick=tick;}
+  if(p<1)requestAnimationFrame(frame);
+  else{rotation=desired;drawWheel();tone(760,.18);showTask(targetIndex);spinning=false;document.getElementById("spinBtn").disabled=false;}
+ }
+ requestAnimationFrame(frame);
+}
+document.getElementById("spinBtn").addEventListener("click",spin);
+document.getElementById("spinAgainBtn").addEventListener("click",spin);
+document.getElementById("nextBtn").addEventListener("click",()=>{document.getElementById("taskPanel").scrollIntoView({behavior:"smooth",block:"center"});tone(620,.1);});
+document.getElementById("soundBtn").addEventListener("click",e=>{
+ soundOn=!soundOn;e.currentTarget.textContent=soundOn?"♫ Sunet activ":"♫ Sunet oprit";
+ e.currentTarget.setAttribute("aria-pressed",String(soundOn));if(soundOn)tone(660,.12);
+});
+</script>
+</body>
+</html>
